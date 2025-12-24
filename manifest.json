@@ -1,7 +1,7 @@
 {
   "name": "REL Exam Prep",
   "short_name": "REL Exam",
-  "start_url": "tasinmaz.html",
+  "start_url": "tasinmaz.html",  
   "display": "standalone",
   "background_color": "#111111",
   "theme_color": "#111111",
