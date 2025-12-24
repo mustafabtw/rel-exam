@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate Law | Exam Prep</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#111111">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* --- CSS DEĞİŞKENLERİ (TEMALAR) --- */
+        :root {
+            /* GÜNDÜZ MODU */
+            --bg-body: #EAEAEA; --bg-sidebar: #FFFFFF; --bg-card: #FFFFFF;
+            --text-sidebar: #666666; --text-sidebar-active: #000000;
+            --text-body: #000000; --text-on-card: #000000;
+            --border-color: #CCCCCC; 
+            --btn-bg: #F4F4F4; --btn-border: #CCCCCC; --btn-hover: #E0E0E0;
+            --glow-correct: #2ecc71; --glow-wrong: #e74c3c;
+            --font-family: 'Inter', sans-serif; --sidebar-width: 280px;
+            --radius-sharp: 0px; /* KESKİN HATLAR İÇİN */
+        }
+        [data-theme="dark"] {
+            /* GECE MODU */
+            --bg-body: #000000; --bg-sidebar: #111111; --bg-card: #1C1C1C;
+            --text-sidebar: #999999; --text-sidebar-active: #FFFFFF;
+            --text-body: #FFFFFF; --text-on-card: #FFFFFF;
+            --border-color: #333333; 
+            --btn-bg: #2A2A2A; --btn-border: #333333; --btn-hover: #444444;
+        }
+
+        /* --- TEMEL AYARLAR --- */
+        body {
+            font-family: var(--font-family); background-color: var(--bg-body); color: var(--text-body);
+            margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: var(--sidebar-width); background-color: var(--bg-sidebar); color: var(--text-sidebar);
+            display: flex; flex-direction: column; padding: 30px 20px; box-sizing: border-box;
+            border-right: 1px solid var(--border-color); flex-shrink: 0; z-index: 100;
+            transition: all 0.3s ease;
+        }
+        .logo-area { font-size: 1rem; font-weight: 900; letter-spacing: -0.05em; margin-bottom: 50px; color: var(--text-sidebar-active); text-transform: uppercase; }
+        .menu-item { display: flex; align-items: center; padding: 15px; margin-bottom: 5px; border-radius: var(--radius-sharp); cursor: pointer; transition: all 0.2s ease; font-weight: 700; font-size: 0.95rem; color: var(--text-sidebar); letter-spacing: -0.02em; border: 1px solid transparent; }
+        .menu-item:hover { background-color: var(--btn-hover); color: var(--text-sidebar-active); border-color: var(--border-color); }
+        .menu-item.active { background-color: var(--btn-bg); color: var(--text-sidebar-active); border-color: var(--border-color); }
+        .menu-icon svg { width: 20px; height: 20px; margin-right: 15px; fill: currentColor; }
+        .sidebar-footer { margin-top: auto; font-size: 0.75rem; opacity: 0.6; font-weight: 500;}
+
+        /* --- ANA İÇERİK ALANI --- */
+        .main-content { flex-grow: 1; position: relative; overflow: hidden; display: flex; background-color: var(--bg-body); transition: background-color 0.3s ease; }
+        #view-quiz, #view-summary { width: 100%; height: 100%; overflow-y: auto; padding: 40px; box-sizing: border-box; }
+        #view-quiz { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+        /* --- QUIZ KARTI (KESKİN) --- */
+        .quiz-card {
+            background: var(--bg-card); color: var(--text-on-card); width: 100%; max-width: 900px; min-height: 600px;
+            padding: 60px; box-sizing: border-box; position: relative; border-radius: var(--radius-sharp);
+            box-shadow: 0 0 0 1px var(--border-color); /* Keskin border */
+            display: flex; flex-direction: column; justify-content: space-between; transition: all 0.3s ease;
+        }
+        .quiz-card.glow-correct { border-color: var(--glow-correct); box-shadow: 0 0 60px rgba(46, 204, 113, 0.3), inset 0 0 20px rgba(46, 204, 113, 0.1); }
+        .quiz-card.glow-wrong { border-color: var(--glow-wrong); box-shadow: 0 0 60px rgba(231, 76, 60, 0.3), inset 0 0 20px rgba(231, 76, 60, 0.1); }
+
+        /* HEADER & PROGRESS */
+        .header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding-top: 10px; border-bottom: 2px solid var(--border-color); padding-bottom: 15px;}
+        .part-label { font-size: 0.8rem; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-sidebar-active); }
+        .progress-text { font-size: 1rem; font-weight: 800; opacity: 1; }
+        .progress-bar-bg { width: 100%; height: 4px; background: var(--btn-bg); position: absolute; top: 0; left: 0; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: var(--text-on-card); width: 0%; transition: width 0.6s ease; }
+
+        /* --- HOCA & SORU DÜZENİ --- */
+        .question-layout { display: flex; gap: 30px; margin-bottom: 50px; align-items: flex-start; }
+        .instructor-img-container { flex-shrink: 0; width: 90px; height: 90px; border-radius: 50%; overflow: hidden; border: 3px solid var(--text-on-card); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .instructor-img-container img { width: 100%; height: 100%; object-fit: cover; }
+        .question-wrapper { flex-grow: 1; }
+        .instructor-intro { font-style: italic; font-weight: 600; color: var(--text-sidebar); margin-bottom: 15px; font-size: 1rem; }
+        h2.question-heading { font-size: 1.8rem; line-height: 1.3; margin: 0; font-weight: 800; letter-spacing: -0.03em; color: var(--text-on-card); }
+
+        /* BUTONLAR & INPUT (KESKİN) */
+        .btn { background: var(--btn-bg); border: 2px solid var(--btn-border); color: var(--text-on-card); padding: 20px 25px; width: 100%; text-align: left; margin-bottom: 15px; cursor: pointer; transition: all 0.2s ease; font-family: var(--font-family); font-size: 1.05rem; font-weight: 700; border-radius: var(--radius-sharp); }
+        .btn:hover { background: var(--btn-hover); border-color: var(--text-on-card); transform: translateX(5px); }
+        .btn-check { text-align: center; background: var(--text-on-card); color: var(--bg-card); font-weight: 900; text-transform: uppercase; border: none;}
+        .btn-check:hover { opacity: 0.9; transform: scale(1.02); }
+        input[type="text"] { width: 100%; padding: 20px; font-size: 1.3rem; background: var(--btn-bg); border: 2px solid var(--btn-border); color: var(--text-on-card); font-family: var(--font-family); margin-bottom: 25px; border-radius: var(--radius-sharp); box-sizing: border-box; font-weight: 600;}
+        input[type="text"]:focus { outline: none; border-color: var(--text-on-card); background: var(--bg-card); }
+
+        /* NAV & FEEDBACK */
+        .nav-container { display: flex; gap: 20px; margin-top: auto; padding-top: 40px; border-top: 2px solid var(--border-color); }
+        .btn-nav { flex: 1; text-align: center; font-size: 1rem; font-weight: 800; background: transparent; border: 2px solid var(--btn-border); color: var(--text-sidebar); border-radius: var(--radius-sharp); padding: 15px; text-transform: uppercase; }
+        .btn-nav:hover { border-color: var(--text-on-card); color: var(--text-on-card); background: var(--btn-hover); }
+        .feedback { margin-top: 30px; font-weight: 800; display: none; animation: fadeIn 0.3s ease; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 0.05em;}
+        .feedback.correct { color: var(--glow-correct); } .feedback.wrong { color: var(--glow-wrong); }
+
+        /* --- ÖZET (SUMMARY) STİLİ (KESKİN & SİYAH/BEYAZ VURGU) --- */
+        .summary-container { max-width: 900px; margin: 0 auto; color: var(--text-on-card); padding-bottom: 80px;}
+        .summary-title { font-size: 3rem; font-weight: 900; margin-bottom: 50px; border-bottom: 4px solid var(--text-on-card); padding-bottom: 25px; letter-spacing: -0.04em; text-transform: uppercase;}
+        .exam-section { background: var(--bg-card); padding: 50px; border-radius: var(--radius-sharp); border: 1px solid var(--border-color); margin-bottom: 50px; }
+        .section-header { font-size: 1.5rem; font-weight: 900; color: var(--text-on-card); border-bottom: 2px solid var(--border-color); padding-bottom: 20px; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center; letter-spacing: -0.02em;}
+        .percentage-badge { background: var(--text-on-card); font-size: 0.9rem; padding: 8px 15px; border-radius: var(--radius-sharp); font-weight: 800; color: var(--bg-card); }
+        .summary-content h3 { font-size: 1.6rem; font-weight: 900; margin: 40px 0 20px 0; color: var(--text-on-card); text-transform: uppercase; letter-spacing: -0.02em;}
+        .summary-content h4 { font-size: 1.2rem; font-weight: 800; margin: 30px 0 15px 0; color: var(--text-on-card); opacity: 0.9; }
+        .summary-content p, .summary-content li { font-size: 1.1rem; line-height: 1.7; color: var(--text-on-card); opacity: 0.95; margin-bottom: 15px; font-weight: 500;}
+        .summary-content ul, .summary-content ol { padding-left: 25px; margin-bottom: 30px; }
+        .summary-content li { margin-bottom: 12px; }
+        .summary-content strong { font-weight: 800; color: var(--text-on-card); opacity: 1;}
+        
+        /* SİYAH/BEYAZ VURGU KUTUSU */
+        .important-box { background: var(--btn-bg); padding: 30px; border-radius: var(--radius-sharp); border-left: 6px solid var(--text-on-card); margin: 40px 0; font-weight: 600; font-size: 1.05rem;}
+        
+        .summary-table { width: 100%; border-collapse: collapse; margin: 30px 0; font-size: 1.05rem; }
+        .summary-table th, .summary-table td { border: 2px solid var(--border-color); padding: 18px; text-align: left; }
+        .summary-table th { background: var(--btn-bg); font-weight: 900; color: var(--text-on-card); text-transform: uppercase;}
+
+        /* TOGGLE SWITCH (Düzeltilmiş Hizalama) */
+        .theme-toggle-container { position: fixed; bottom: 30px; right: 30px; z-index: 1000; background: var(--bg-card); border: 2px solid var(--border-color);  display: flex; width: 68px; height: 38px; cursor: pointer; border-radius: 20px; }
+        .toggle-track { width: 100%; height: 100%; position: relative; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; box-sizing: border-box; }
+        .toggle-icon { font-size: 16px; z-index: 2; transition: color 0.3s; line-height: 1; }
+        .toggle-thumb { position: absolute; top: 3px; left: 3px; width: 30px; height: 30px; background: var(--text-on-card); border-radius: 50%; transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); z-index: 1; }
+        [data-theme="dark"] .toggle-thumb { transform: translateX(30px); }
+        [data-theme="dark"] .toggle-icon.moon { color: var(--bg-card); } [data-theme="light"] .toggle-icon.sun { color: var(--bg-card); }
+        [data-theme="dark"] .toggle-icon.sun { color: var(--text-sidebar); } [data-theme="light"] .toggle-icon.moon { color: var(--text-sidebar); }
+        
+        /* ANIMASYONLAR & INTRO */
+        .question-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; opacity: 1; }
+        .slide-out { animation: slideOutLeft 0.4s cubic-bezier(0.7, 0, 0.3, 1) forwards; }
+        .slide-in { animation: slideInRight 0.4s cubic-bezier(0.7, 0, 0.3, 1) forwards; }
+        @keyframes slideOutLeft { to { opacity: 0; transform: translateX(-40px); } }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        .part-intro-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-card); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; z-index: 10; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; border-radius: var(--radius-sharp); }
+        .part-intro-overlay.active { opacity: 1; pointer-events: all; }
+        .intro-title { font-size: 5rem; font-weight: 900; margin: 0; transform: translateY(30px); opacity: 0; transition: all 0.8s; color: var(--text-on-card); letter-spacing: -0.05em; text-transform: uppercase;}
+        .intro-subtitle { font-size: 1.5rem; font-weight: 700; color: var(--text-sidebar); margin-top: 20px; text-transform: uppercase; transform: translateY(30px); opacity: 0; transition: all 0.8s 0.2s; letter-spacing: 0.1em;}
+        .active .intro-title, .active .intro-subtitle { transform: translateY(0); opacity: 1; }
+        .hidden-ui { opacity: 0; pointer-events: none; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: var(--bg-body); } ::-webkit-scrollbar-thumb { background: var(--border-color); }
+
+        @media (max-width: 900px) {
+            body { flex-direction: column; overflow: auto; }
+            .sidebar { width: 100%; height: auto; flex-direction: row; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--border-color); border-right: none; }
+            .logo-area { margin: 0 20px 0 0; margin-bottom: 0;} .menu-item { margin: 0 5px; padding: 10px 15px; font-size: 0.85rem; }
+            .main-content { overflow: visible; height: auto; padding-bottom: 100px; }
+            .quiz-card { min-height: 500px; padding: 30px; border: none; box-shadow: none; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);}
+            .question-layout { flex-direction: column; gap: 20px; }
+            .instructor-img-container { width: 70px; height: 70px; }
+            h2.question-heading { font-size: 1.5rem; }
+            .theme-toggle-container { bottom: 25px; right: 25px; }
+            .summary-container { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="theme-toggle-container" onclick="toggleTheme()">
+        <div class="toggle-track">
+            <span class="toggle-icon sun">☀</span><span class="toggle-icon moon">☾</span>
+            <div class="toggle-thumb"></div>
+        </div>
+    </div>
+
+    <aside class="sidebar">
+        <div class="logo-area">REL Exam Prep</div>
+        <div class="menu-item active" onclick="switchView('quiz')" id="menu-quiz">
+            <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg></span>
+            Questions
+        </div>
+        <div class="menu-item" onclick="switchView('summary')" id="menu-summary">
+            <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg></span>
+            Summary
+        </div>
+        <div class="sidebar-footer">&copy; 2024 Mustafa Baran</div>
+    </aside>
+
+    <main class="main-content">
+        <div id="view-quiz">
+            <div class="quiz-card" id="quiz-card">
+                <div class="part-intro-overlay" id="intro-overlay">
+                    <h1 class="intro-title" id="intro-title">PART I</h1>
+                    <div class="intro-subtitle" id="intro-subtitle">True / False</div>
+                </div>
+                <div class="progress-bar-bg" id="ui-progress"><div class="progress-bar-fill" id="progress-fill"></div></div>
+                <div class="header-info" id="ui-header">
+                    <div class="part-label" id="part-label">Part I</div>
+                    <div class="progress-text"><span id="q-num">1</span> / 100</div>
+                </div>
+
+                <div id="content-wrapper" class="question-content">
+                    <div class="question-layout">
+                        <div class="instructor-img-container">
+                            <img src="bovkir.jpeg" alt="Dr. Bovkır">
+                        </div>
+                        <div class="question-wrapper">
+                            <div class="instructor-intro">Dr. Asst. Prof. Bovkır says:</div>
+                            <h2 id="question-text" class="question-heading">Loading...</h2>
+                        </div>
+                    </div>
+
+                    <div id="answer-area"></div>
+                    <div id="feedback-area" class="feedback"></div>
+                </div>
+
+                <div class="nav-container" id="ui-nav">
+                    <button class="btn-nav" id="btn-prev" onclick="prevQ()">BACK</button>
+                    <button class="btn-nav" id="btn-next" onclick="nextQ()">NEXT</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-summary" style="display: none;">
+            <div class="summary-container">
+                <div class="summary-title">Comprehensive Study Summary</div>
+                
+                <div class="exam-section">
+                    <div class="section-header">
+                        I. MIDTERM TOPICS (Introduction to Law)
+                        <span class="percentage-badge">Weight: 30-35%</span>
+                    </div>
+                    <div class="summary-content">
+                        <h3>1. Fundementals of Law</h3>
+                        <p><strong>Law (Hukuk):</strong> A system of rules regulating the conduct of individuals within society and with the state, enforced by state power (sanctions). Its main purposes are establishing standards, maintaining order, resolving disputes, and protecting liberties.</p>
+                        
+                        <div class="important-box">
+                            <strong>Rules vs. Laws:</strong> Not all rules are laws. Social rules (morality, etiquette) have social sanctions (disapproval). Laws apply to everyone and have material state sanctions (punishment, compensation).
+                        </div>
+
+                        <h4>Hierarchy of Norms (Normlar Hiyerarşisi)</h4>
+                        <p>A lower-level rule cannot contradict a higher-level one.</p>
+                        <ol>
+                            <li><strong>Constitution (Anayasa)</strong> - The supreme law.</li>
+                            <li>International Agreements (Uluslararası Antlaşmalar)</li>
+                            <li><strong>Laws / Codes (Kanunlar)</strong> - Enacted by parliament (TBMM).</li>
+                            <li>Presidential Decrees (Cumhurbaşkanlığı Kararnameleri)</li>
+                            <li>Regulations (Yönetmelikler)</li>
+                        </ol>
+
+                        <h3>2. Sources & Branches of Law</h3>
+                        <ul>
+                            <li><strong>Primary Sources (Binding):</strong> Written laws (Constitution, Codes) and Unwritten (Customary Law). Judges <em>must</em> follow these.</li>
+                            <li><strong>Auxiliary Sources (Non-binding):</strong> Doctrine (Academic opinions) and Judicial Decisions (Precedents). Judges <em>may</em> use these.</li>
+                        </ul>
+
+                        <div class="important-box">
+                            <strong>Public vs. Private Law:</strong><br>
+                            - <strong>Public Law:</strong> State vs. Individual. State has sovereignty (superiority). E.g., Constitutional, Criminal, Tax Law.<br>
+                            - <strong>Private Law:</strong> Individual vs. Individual. Parties have equality. E.g., Civil Law (Medeni Hukuk), Obligations Law.
+                        </div>
+
+                        <h3>3. Persons & Capacity</h3>
+                        <p><strong>Real Person:</strong> Human beings. Personality begins at birth and ends at death.<br><strong>Legal Person:</strong> Organizations (companies, foundations) treated as entities.</p>
+                        
+                        <h4>Capacity to Act (Fiil Ehliyeti) Requirements:</h4>
+                        <ol>
+                            <li><strong>Adulthood (Erginlik):</strong> Being 18+ years old.</li>
+                            <li><strong>Power of Discernment (Ayırt Etme Gücü):</strong> Ability to distinguish right from wrong (Mental health). The most crucial condition.</li>
+                            <li><strong>Not being Restricted (Kısıtlı Olmamak):</strong> Not being under guardianship due to reasons like addiction or mental illness.</li>
+                        </ol>
+                        <p>Those lacking discernment (young children, mentally ill) have <strong>absolutely null and void (mutlak butlan)</strong> transactions.</p>
+
+                        <h3>4. Rights & Property Concepts</h3>
+                        <ul>
+                            <li><strong>Absolute Rights:</strong> Assertable against everyone (e.g., Ownership).</li>
+                            <li><strong>Relative Rights:</strong> Assertable only against specific persons (e.g., Creditor's right).</li>
+                        </ul>
+
+                        <h4>Real Rights (Ayni Haklar) on Immovables</h4>
+                        <ul>
+                            <li><strong>Ownership (Mülkiyet):</strong> The fullest right. Includes Use (Usus), Enjoyment/Fruits (Fructus), and Disposal (Abus).</li>
+                            <li><strong>Limited Real Rights:</strong>
+                                <ul>
+                                    <li><strong>Easements (İrtifak):</strong> Right to use (e.g., Right of way, Usufruct).</li>
+                                    <li><strong>Mortgage (İpotek):</strong> Right used as security for a debt.</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                        <div class="important-box">
+                            <strong>The 3R Rule in Land Management:</strong><br>
+                            Property is not just rights. It is a bundle of <strong>Rights</strong>, <strong>Responsibilities</strong> (e.g., paying taxes, not harming neighbors), and <strong>Restrictions</strong> (e.g., zoning plans, expropriation for public good).
+                        </div>
+
+                        <h3>5. Ownership Types & Possession</h3>
+                        <ul>
+                            <li><strong>Sole Ownership:</strong> Single owner.</li>
+                            <li><strong>Shared Ownership (Paylı):</strong> Multiple owners with defined shares (e.g., 1/2, 1/4). Each can sell their share. Others have <strong>Pre-emption Right (Şufa/Önalım)</strong>.</li>
+                            <li><strong>Joint Ownership (Elbirliği):</strong> Multiple owners linked by a bond (like inheritance). No defined shares on the whole property. <strong>Unanimity (Oybirliği)</strong> is required for disposal.</li>
+                        </ul>
+                        <p><strong>Possession (Zilyetlik):</strong> De facto (factual) control over a property. It is distinct from ownership (legal right). Requires actual control (corpus) and intention to possess (animus).</p>
+                        <div class="important-box">
+                            <strong>Presumption of Possession (Zilyetlik Karinesi):</strong> The possessor of a movable is presumed to be its owner until proven otherwise. For immovables, the person registered in the Land Registry is presumed the owner.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="exam-section">
+                    <div class="section-header">
+                        II. MIDTERM TOPICS (Registry, Condo, Inheritance)
+                        <span class="percentage-badge">Weight: 65-70%</span>
+                    </div>
+                    <div class="summary-content">
+                        <h3>1. Land Registration (Tapu Sicili)</h3>
+                        <p>State-guaranteed public records showing the legal status of real estate. The state is liable for damages caused by registry errors.</p>
+                        
+                        <div class="important-box">
+                            <strong>Principle of Reliance (Tapu Siciline Güven İlkesi):</strong> A third party who acquires a right in good faith relying on the registry entry is protected, even if the entry was incorrect.
+                        </div>
+
+                        <h4>Main Registers</h4>
+                        <ul>
+                            <li><strong>Land Register (Tapu Kütüğü):</strong> The main book recording ownership and rights for each property.</li>
+                            <li><strong>Condominium Register:</strong> Records independent units (apartments/shops).</li>
+                            <li><strong>Journal Book (Yevmiye Defteri):</strong> Records applications chronologically by date, hour, and minute. It determines the <strong>PRIORITY</strong> of rights.</li>
+                            <li><strong>Official Documents:</strong> Supporting docs like contracts, plans, court orders.</li>
+                        </ul>
+
+                        <h4>Auxiliary Registers</h4>
+                        <ul>
+                            <li><strong>Owners Registry (Karteks):</strong> Alphabetical index to find properties by owner's name.</li>
+                            <li><strong>Dismissals Registry (Aziller Sicili):</strong> Records cancellations of powers of attorney. Must be checked by the officer before transactions involving a proxy.</li>
+                            <li><strong>Corrections Register:</strong> Records reasons for correcting errors in the main register.</li>
+                        </ul>
+                        <p><strong>Title Deeds:</strong> Blue (Land/Arsa), Red (Independent Unit/Kat Mülkiyeti).</p>
+
+                        <h3>2. Condominium Law (Kat Mülkiyeti - No: 634)</h3>
+                        <p>Private ownership established on independent units (flats, shops) of a completed building, linked to land share.</p>
+                        <ul>
+                            <li><strong>Main Property:</strong> The whole building and land.</li>
+                            <li><strong>Independent Unit:</strong> Separately usable section (apartment).</li>
+                            <li><strong>Common Areas:</strong> Parts used by all (stairs, roof, foundation).</li>
+                            <li><strong>Land Share (Arsa Payı):</strong> The share of the land allocated to each unit based on its value.</li>
+                        </ul>
+
+                        <h4>Conditions for Establishment (Kurulum Şartları)</h4>
+                        <ol>
+                            <li><strong>Completion:</strong> Building must be fully finished (exception: 40% for block structures).</li>
+                            <li><strong>Masonry Structure (Kargir):</strong> Stone, brick, or concrete. <strong>No wood/timber buildings.</strong></li>
+                            <li><strong>Occupancy Permit (İskan):</strong> Mandatory official certificate of completion and safety from the municipality.</li>
+                            <li><strong>Management Plan:</strong> The "constitution" of the building, signed by all owners.</li>
+                        </ol>
+
+                        <div class="important-box">
+                            <strong>Goodwill Adjustment (Şerefiye):</strong> Financial adjustment made to balance value differences between units in the same building caused by factors like view, floor level, or sun exposure, ensuring fair land share allocation.
+                        </div>
+
+                        <h3>3. Inheritance Law (Miras Hukuku)</h3>
+                        <p>Regulates the passing of assets (Tereke) from a deceased (Muris) to heirs. Heirs get <strong>Joint Ownership</strong> initially.</p>
+
+                        <h4>Legal Heirs - The Parental System (Zümreler)</h4>
+                        <p>Priority system based on blood relationship. If a higher group exists, lower groups get nothing.</p>
+                        <ul>
+                            <li><strong>1st Group (Descendants):</strong> Children, grandchildren. (Top priority).</li>
+                            <li><strong>2nd Group (Parents & Siblings):</strong> Parents and their descendants. (Inherit if no 1st group).</li>
+                            <li><strong>3rd Group (Grandparents):</strong> Grandparents and their descendants (uncles/aunts). (Inherit if no 1st or 2nd group).</li>
+                        </ul>
+                        <p><em>Note: Adopted children are in the 1st group.</em></p>
+
+                        <h4>Surviving Spouse's Share</h4>
+                        <ul>
+                            <li>With 1st Group: Gets <strong>1/4</strong> legal share.</li>
+                            <li>With 2nd Group: Gets <strong>1/2</strong> legal share.</li>
+                            <li>With 3rd Group (or alone): Gets <strong>3/4</strong> or All.</li>
+                        </ul>
+
+                        <h4>Reserved Share (Saklı Pay) - MUST MEMORIZE</h4>
+                        <p>The guaranteed portion of inheritance for close relatives that the Muris cannot give away by will. (Siblings have no reserved share since 2007, but assume 1/8 for exam based on notes).</p>
+
+                        <table class="summary-table">
+                            <tr><th>Heir</th><th>Reserved Share Ratio</th></tr>
+                            <tr><td>Children (Alt Soy)</td><td><strong>1/2</strong> of their legal share</td></tr>
+                            <tr><td>Parents (Anne-Baba)</td><td><strong>1/4</strong> of their legal share</td></tr>
+                            <tr><td>Spouse (with 1st/2nd Group)</td><td><strong>All (1/1)</strong> of their legal share</td></tr>
+                            <tr><td>Spouse (with 3rd Group/Alone)</td><td><strong>3/4</strong> of their legal share</td></tr>
+                        </table>
+
+                        <h4>Testamentary Dispositions</h4>
+                        <ul>
+                            <li><strong>Will (Vasiyet):</strong> Unilateral. Min age <strong>15</strong>. Revocable anytime. Types: Official, Handwritten (must be fully handwritten, dated, signed), Oral (emergency only).</li>
+                            <li><strong>Inheritance Contract:</strong> Bilateral agreement. Min age <strong>18</strong>. Cannot be revoked unilaterally without cause. Only official form.</li>
+                        </ul>
+
+                        <div class="important-box">
+                            <strong>Key Timelines & Situations:</strong><br><br>
+                            <strong>Disclaimer (Reddi Miras):</strong> Heirs can reject inheritance (usually due to debts) within <strong>3 MONTHS</strong> of learning of the death.<br><br>
+                            <strong>Absence (Gaiplik):</strong>
+                            <ul>
+                                <li>Danger of death (imminent risk): Wait <strong>1 Year</strong>.</li>
+                                <li>Long silence (no news): Wait <strong>5 Years</strong>.</li>
+                            </ul>
+                            Heirs must provide a <strong>Guarantee (Teminat)</strong> to receive the estate in case the absent person returns.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- THEME & VIEW LOGIC ---
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        function switchView(viewName) {
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('menu-' + viewName).classList.add('active');
+            if (viewName === 'quiz') {
+                document.getElementById('view-quiz').style.display = 'flex';
+                document.getElementById('view-summary').style.display = 'none';
+            } else {
+                document.getElementById('view-quiz').style.display = 'none';
+                document.getElementById('view-summary').style.display = 'block';
+            }
+        }
+
+        // --- SORULARI KARIŞTIRMA FONKSİYONU (Fisher-Yates Shuffle) ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // --- HAM SORU VERİSİ (Raw Data) ---
+        const rawQuestions = [
+            // I. TRUE / FALSE (1-25)
+            { type: 'tf', q: 'The Journal Book determines the priority of rights in the land registry.', a: 'T' },
+            { type: 'tf', q: 'Blue title deeds are given for independent units (apartments, shops) with established condominium.', a: 'F' },
+            { type: 'tf', q: 'The Journal Book is among the "Auxiliary Registers" of the land registry.', a: 'F' },
+            { type: 'tf', q: 'It is legally possible to establish a condominium in a wooden building.', a: 'F' },
+            { type: 'tf', q: '"Goodwill Adjustment" (Şerefiye) is a monetary adjustment made to balance value differences of units.', a: 'T' },
+            { type: 'tf', q: 'While there are heirs in the 1st group (descendants), parents (2nd group) cannot be heirs.', a: 'T' },
+            { type: 'tf', q: 'In inheritance law, the "triangle" symbol represents the surviving spouse.', a: 'T' },
+            { type: 'tf', q: 'It is a requirement to be 18 years old to prepare a Will.', a: 'F' },
+            { type: 'tf', q: 'An Inheritance Contract can only be made in official form (in the presence of a notary/judge).', a: 'T' },
+            { type: 'tf', q: 'The reserved share of the surviving spouse is their entire legal share when inheriting with the 1st or 2nd group.', a: 'T' },
+            { type: 'tf', q: 'The land registry officer does not have to check the "Dismissals Registry" in a transaction made by proxy.', a: 'F' },
+            { type: 'tf', q: 'To transition to a condominium, the building must be completed and have received an "Occupancy Permit".', a: 'T' },
+            { type: 'tf', q: "The reserved share ratio of the muris's siblings is 1/8 of their legal inheritance share.", a: 'T' },
+            { type: 'tf', q: 'The legal period allowed for the disclaimer of inheritance is 6 months.', a: 'F' },
+            { type: 'tf', q: 'In case of absence, if the person disappeared in danger of death, the waiting period is 5 years.', a: 'T' },
+            { type: 'tf', q: 'An inheritance contract can be cancelled at any time by a unilateral declaration of will.', a: 'F' },
+            { type: 'tf', q: 'The land registry is under the responsibility of the state; the state pays for damages arising from incorrect records.', a: 'T' },
+            { type: 'tf', q: 'In a handwritten will, it is not mandatory for the date and signature to be in handwriting.', a: 'F' },
+            { type: 'tf', q: 'Heirs become jointly and severally liable for the debts of the estate as soon as the inheritance opens.', a: 'T' },
+            { type: 'tf', q: 'The 3rd group of heirs consists of the grandparents of the deceased and their descendants.', a: 'T' },
+            { type: 'tf', q: 'In the condominium registry, a separate page is opened for each independent unit.', a: 'T' },
+            { type: 'tf', q: '"Estate" (Tereke) only covers the active assets of the muris and does not include debts.', a: 'F' },
+            { type: 'tf', q: 'Goodwill adjustment is determined by the 3rd List (Unit Allocation List) prepared for the condominium.', a: 'T' },
+            { type: 'tf', q: 'An adopted person cannot be a legal heir of the person who adopted them.', a: 'F' },
+            { type: 'tf', q: 'Real estate pledge rights (Mortgage) are among the "Main Records" of the land registry.', a: 'T' },
+            // II. FILL IN THE BLANKS (26-50)
+            { type: 'blank', q: 'The register where applications are recorded according to date, hour, and minute is called ________.', a: 'Journal Book' },
+            { type: 'blank', q: 'For a condominium to be established, the structure must be ________ (stone/brick).', a: 'Masonry' },
+            { type: 'blank', q: "The group consisting of the muris's children and grandchildren is called ________.", a: '1st Group' },
+            { type: 'blank', q: 'To make a will, one must have the power of discernment and be at least ________ years old.', a: '15' },
+            { type: 'blank', q: 'If the inheritance is insolvent, heirs can prevent becoming heirs through ________.', a: 'Disclaimer' },
+            { type: 'blank', q: 'The situation where a person disappears in danger of death or has not been heard from for a long time is called ________.', a: 'Absence' },
+            { type: 'blank', q: 'The payment that balances value differences like sun exposure and floor difference in a condominium is called ________.', a: 'Goodwill Adjustment' },
+            { type: 'blank', q: 'The portion of the inheritance reserved for legal heirs that the muris cannot touch by will is called ________.', a: 'Reserved Share' },
+            { type: 'blank', q: 'In inheritance diagrams, the "Square" symbol represents ________ persons.', a: 'Female' },
+            { type: 'blank', q: "The siblings of the deceased have a reserved share of ________ of their legal inheritance share.", a: '1/8' },
+            { type: 'blank', q: "Whether a proxy's authority has been cancelled is checked from the ________ registry.", a: 'Dismissals' },
+            { type: 'blank', q: '________ title deeds are issued for real estate in the nature of land and plots.', a: 'Blue' },
+            { type: 'blank', q: 'To make an inheritance contract, a person must be ________ years old and have full legal capacity.', a: '18' },
+            { type: 'blank', q: "The reserved share ratio of the muris's parents is ________ of their legal share.", a: '1/4' },
+            { type: 'blank', q: "The 'constitution' of the building prepared for the condominium and signed by all owners is called ________.", a: 'Management Plan' },
+            { type: 'blank', q: 'Heirs have ________ ownership over the properties when the inheritance opens.', a: 'Joint' },
+            { type: 'blank', q: 'For a decision of absence for someone not heard from for a long time, ________ years must have passed since the last news.', a: '15' },
+            { type: 'blank', q: 'Official wills are made in the presence of a notary, a civil judge, or an authorized ________.', a: 'Officer' },
+            { type: 'blank', q: 'Ownership, easement, and pledge rights are ________ records of the land registry.', a: 'Main' },
+            { type: 'blank', q: "The reserved share of the muris's children is ________ of their legal inheritance share.", a: '1/2' },
+            { type: 'blank', q: 'Goodwill adjustment is shown in the document named ________, which is one of the condominium documents.', a: 'Unit Allocation List' },
+            { type: 'blank', q: 'An heir who wants to reject the inheritance has ________ months from the death of the muris.', a: '3' },
+            { type: 'blank', q: '________ title deeds are issued for independent units that have received an occupancy permit.', a: 'Red' },
+            { type: 'blank', q: 'To revoke a will, a new will can be made or the old will can be ________.', a: 'Destroyed' },
+            { type: 'blank', q: 'Until the absent person reaches age 100 or the guarantee period expires, heirs cannot use the property fully without ________.', a: 'Guarantee' },
+            // III. MULTIPLE CHOICE (51-75)
+            { type: 'choice', q: 'Which is NOT one of the "Main Registers" of the land registry?', options: ['A) Journal Book', 'B) Land Register', 'C) Owners Registry', 'D) Condominium Registry'], a: 'C' },
+            { type: 'choice', q: 'At least what percentage of blocks/units must be finished to establish a condominium?', options: ['A) 20%', 'B) 30%', 'C) 40%', 'D) 50%'], a: 'C' },
+            { type: 'choice', q: 'Which symbol-meaning match is correct in inheritance law?', options: ['A) Circle: Spouse', 'B) Triangle: Spouse', 'C) Square: Male', 'D) Circle: Female'], a: 'B' },
+            { type: 'choice', q: "If only the spouse and father are alive, what is the spouse's reserved share?", options: ['A) 1/2 of legal share', 'B) 3/4 of legal share', 'C) All of legal share', 'D) 1/4 of legal share'], a: 'C' },
+            { type: 'choice', q: 'Which is WRONG regarding a handwritten will?', options: ['A) Must be entirely handwritten', 'B) Must have a date', 'C) Must be signed', 'D) Must be made before witnesses'], a: 'D' },
+            { type: 'choice', q: 'How long must pass after danger of death for a decision of absence?', options: ['A) 1 Year', 'B) 3 Years', 'C) 5 Years', 'D) 15 Years'], a: 'A' },
+            { type: 'choice', q: 'Which is NOT one of the 3 dimensions (3D) of property?', options: ['A) Air space', 'B) Underground', 'C) Surface', 'D) Municipal boundary'], a: 'D' },
+            { type: 'choice', q: 'In which document preparation process does "Goodwill" arise?', options: ['A) Architectural Project', 'B) Land Share List', 'C) Management Plan', 'D) Occupancy Permit'], a: 'B' },
+            { type: 'choice', q: "If the muris's sibling is alive, what is their reserved share ratio?", options: ['A) 1/2', 'B) 1/4', 'C) 1/8', 'D) 3/4'], a: 'C' },
+            { type: 'choice', q: 'Which of the following is an "Auxiliary Record"?', options: ['A) Registry Correction', 'B) Journal Book', 'C) Official Bill', 'D) Plans'], a: 'A' },
+            { type: 'choice', q: 'Where is the declaration of disclaimer of inheritance made?', options: ['A) Land Registry Office', 'B) Civil Court of Peace', 'C) Notary', 'D) Municipality'], a: 'B' },
+            { type: 'choice', q: 'What is the age limit for making a will?', options: ['A) 12', 'B) 15', 'C) 18', 'D) 21'], a: 'B' },
+            { type: 'choice', q: 'Which building type is forbidden for establishing a condominium?', options: ['A) Reinforced Concrete', 'B) Masonry', 'C) Wooden', 'D) Steel'], a: 'C' },
+            { type: 'choice', q: 'What does "Blue Deed" represent?', options: ['A) Apartment', 'B) Shop', 'C) Land/Field', 'D) Factory'], a: 'C' },
+            { type: 'choice', q: 'Which information is NOT in the journal book?', options: ['A) Application hour', 'B) Application minute', 'C) Subject of transaction', 'D) Reserved shares of heirs'], a: 'D' },
+            { type: 'choice', q: 'Who is in the 2nd group?', options: ['A) Children', 'B) Parents and Siblings', 'C) Uncles', 'D) Grandchildren'], a: 'B' },
+            { type: 'choice', q: "If the deceased has only one child, what is this child's reserved share?", options: ['A) All inheritance', 'B) 1/4 of legal share', 'C) 1/2 of legal share', 'D) No reserved share'], a: 'C' },
+            { type: 'choice', q: 'Which register explains why an error in the land registry was corrected?', options: ['A) Dismissals Registry', 'B) Journal Book', 'C) Registry Correction', 'D) Karteks'], a: 'C' },
+            { type: 'choice', q: 'Which type of ownership opens automatically upon the death of the muris?', options: ['A) Shared Ownership', 'B) Joint Ownership', 'C) Sole Ownership', 'D) Condominium'], a: 'B' },
+            { type: 'choice', q: 'Which is true regarding an inheritance contract?', options: ['A) It is unilateral', 'B) Can be made at age 15', 'C) Only in official form', 'D) Can be handwritten'], a: 'C' },
+            { type: 'choice', q: 'In the "3R Rule", what do the R letters represent?', options: ['A) Right, Road, Region', 'B) Rights, Responsibilities, Restrictions', 'C) Rent, Real, Regulation', 'D) Rules, Records, Rights'], a: 'B' },
+            { type: 'choice', q: 'If the muris has no children, who does the inheritance pass to?', options: ['A) The State', 'B) Upper groups (Parents)', 'C) No one', 'D) Foundations'], a: 'B' },
+            { type: 'choice', q: 'Who approves the Occupancy Permit?', options: ['A) Land Registry Manager', 'B) Municipality', 'C) Notary', 'D) Governor'], a: 'B' },
+            { type: 'choice', q: 'If the spouse inherits with the 3rd group, what is their reserved share?', options: ['A) All of legal share', 'B) 3/4 of legal share', 'C) 1/2 of legal share', 'D) No reserved share'], a: 'B' },
+            { type: 'choice', q: 'What is "Official Bill"?', options: ['A) Official Senet', 'B) Architectural Plan', 'C) Court Decision', 'D) Tax Debt'], a: 'A' },
+            // IV. CLASSICAL & CALCULATION (76-100)
+            { type: 'classic', q: '76. Function of Journal Book?', a: 'Determines the priority of rights by recording applications in order of date and time.' },
+            { type: 'classic', q: '77. Calc: Onur (80k TL), single, no kids. Mom and Dad alive. Reserved shares?', a: 'Legal share: 40k each. Reserved share (1/4): 10,000 TL each.' },
+            { type: 'classic', q: '78. Content of "Unit Allocation List"?', a: 'Unit number, floor, type, land share ratio, and names of owners.' },
+            { type: 'classic', q: '79. 3 Diffs: Will vs Inheritance Contract?', a: '1. Will is unilateral, contract is multi-party. 2. Will age 15, contract age 18. 3. Will can be handwritten, contract must be official.' },
+            { type: 'classic', q: '80. Calc: Fatma (90k TL). Husband Ahmet, daughter Elif. Reserved shares?', a: "Legal: Spouse 1/4, Child 3/4. Spouse's Reserved Share (1st group): 22,500 TL (full legal share). Child's Reserved: 90k * 3/4 * 1/2 = 33,750 TL." },
+            { type: 'classic', q: '81. What is disclaimer of inheritance?', a: 'Refusal to accept inheritance when debts exceed assets. Must be done within 3 months.' },
+            { type: 'classic', q: '82. Can heirs of an absent person use property immediately?', a: 'No, they must provide a "Guarantee" (teminat) to the state against the possibility of return.' },
+            { type: 'classic', q: '83. Problem if Goodwill is not adjusted?', a: 'Unfair distribution of land shares; valuable unit owners take less responsibility while others pay more.' },
+            { type: 'classic', q: '84. 3 ways to revoke a Will?', a: '1. New will. 2. Destroying old will. 3. Selling the bequeathed property.' },
+            { type: 'classic', q: '85. Function of Owners Registry (Karteks)?', a: 'Allows finding all properties owned by a person in that region via name search.' },
+            { type: 'classic', q: '86. Why is wooden structure forbidden for condo?', a: 'Due to fire risk and the requirement of structural permanence (masonry requirement).' },
+            { type: 'classic', q: '87. How are Male and Spouse shown in diagrams?', a: 'Male: Circle, Spouse: Triangle.' },
+            { type: 'classic', q: '88. Calc: Muris (1000 TL) and 4 children. Reserved share per child?', a: 'Legal: 250 TL each. Reserved (1/2): 125 TL each.' },
+            { type: 'classic', q: '89. 4 reasons to cancel a will?', a: '1. Incapacity. 2. Error/Fraud/Duress. 3. Illegality. 4. Formal defect.' },
+            { type: 'classic', q: '90. Main Property vs Independent Unit?', a: 'Main property is the whole building/land; independent unit is the single apartment/shop.' },
+            { type: 'classic', q: '91. Can a 16-year-old make a will? Contract?', a: 'Yes to Will (min 15), No to Contract (min 18).' },
+            { type: 'classic', q: '92. Ownership type where shares are not determined?', a: 'Joint Ownership (Elbirliği Mülkiyeti).' },
+            { type: 'classic', q: '93. What is in the Dismissals Registry?', a: 'Information on whether a power of attorney has been cancelled by the owner.' },
+            { type: 'classic', q: '94. Who is the 1st group? Priority?', a: 'Muris\'s descendants. Highest priority; if even one exists, 2nd/3rd groups get nothing.' },
+            { type: 'classic', q: '95. Define "Reserved Share".', a: 'The portion of inheritance guaranteed by law to legal heirs that the muris cannot dispose of.' },
+            { type: 'classic', q: '96. Blue vs Red Deed?', a: 'Blue is for land; Red is for condominium (apartment/shop).' },
+            { type: 'classic', q: '97. "100-year" rule in absence?', a: 'Heirs remain bound by guarantee until the absent person would have reached age 100.' },
+            { type: 'classic', q: '98. What to do if debts > assets?', a: 'Apply for disclaimer of inheritance (mirasın reddi) within 3 months.' },
+            { type: 'classic', q: '99. Min percentage of blocks finished for condo?', a: 'At least 40%.' },
+            { type: 'classic', q: '100. Importance of "3R Rule"?', a: 'Explains property as a whole of Rights, Responsibilities, and Restrictions.' }
+        ];
+
+        // --- SORULARI PARÇALAYIP KARIŞTIR VE BİRLEŞTİR ---
+        let questions = [];
+        questions = questions.concat(shuffleArray(rawQuestions.slice(0, 25)));   // Part I Karıştır
+        questions = questions.concat(shuffleArray(rawQuestions.slice(25, 50)));  // Part II Karıştır
+        questions = questions.concat(shuffleArray(rawQuestions.slice(50, 75)));  // Part III Karıştır
+        questions = questions.concat(shuffleArray(rawQuestions.slice(75, 100))); // Part IV Karıştır
+
+        // --- QUIZ ENGINE ---
+        let currentIndex = 0;
+        const quizCard = document.getElementById('quiz-card');
+        const contentWrapper = document.getElementById('content-wrapper');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const partLabel = document.getElementById('part-label');
+        const introOverlay = document.getElementById('intro-overlay');
+        const uiElements = [document.getElementById('ui-progress'), document.getElementById('ui-header'), document.getElementById('ui-nav'), document.getElementById('question-text').parentNode];
+        const partStarts = { 0: {title: "PART I", sub: "TRUE / FALSE"}, 25: {title: "PART II", sub: "FILL IN THE BLANKS"}, 50: {title: "PART III", sub: "MULTIPLE CHOICE"}, 75: {title: "PART IV", sub: "CLASSICAL"} };
+
+        function getPartName(index) { if(index<25)return"PART I: TRUE / FALSE";if(index<50)return"PART II: FILL IN THE BLANKS";if(index<75)return"PART III: MULTIPLE CHOICE";return"PART IV: CLASSICAL";}
+
+        function playIntroAndRender(targetIndex) {
+            const partInfo = partStarts[targetIndex] || {title: "Quiz", sub: "Start"};
+            uiElements.forEach(el => el.classList.add('hidden-ui'));
+            contentWrapper.style.opacity = '0';
+            document.getElementById('intro-title').innerText = partInfo.title;
+            document.getElementById('intro-subtitle').innerText = partInfo.sub;
+            introOverlay.classList.add('active');
+            setTimeout(() => { introOverlay.classList.remove('active'); setTimeout(() => { uiElements.forEach(el => el.classList.remove('hidden-ui')); contentWrapper.style.opacity = '1'; renderQuestionContent(targetIndex, true); }, 500); }, 2000);
+        }
+
+        function renderQuestion() { if (partStarts[currentIndex]) { playIntroAndRender(currentIndex); } else { renderQuestionContent(currentIndex, false); } }
+
+        function renderQuestionContent(index, isFromIntro) {
+            const q = questions[index] || questions[0];
+            partLabel.innerText = getPartName(index);
+            document.getElementById('q-num').innerText = index + 1;
+            document.getElementById('progress-fill').style.width = ((index + 1) / questions.length * 100) + '%';
+            btnPrev.disabled = index === 0;
+            btnNext.disabled = index === questions.length - 1;
+            quizCard.classList.remove('glow-correct', 'glow-wrong');
+
+            if (!isFromIntro) { contentWrapper.classList.remove('slide-in', 'slide-out'); if(contentWrapper.innerHTML.trim() !== "") { contentWrapper.classList.add('slide-out'); } }
+            const delay = isFromIntro ? 0 : 400;
+            setTimeout(() => {
+                const area = document.getElementById('answer-area');
+                const feedback = document.getElementById('feedback-area');
+                document.getElementById('question-text').innerText = q.q;
+                feedback.style.display = 'none'; feedback.className = 'feedback'; area.innerHTML = '';
+                
+                if(q.type === 'tf') { area.innerHTML = `<button class="btn" onclick="check('T')">True</button><button class="btn" onclick="check('F')">False</button>`; } 
+                else if(q.type === 'blank') { area.innerHTML = `<input type="text" id="blank-input" placeholder="Type answer..." autocomplete="off"><button class="btn btn-check" onclick="check(document.getElementById('blank-input').value)">Check Answer</button>`; } 
+                else if(q.type === 'choice') { q.options.forEach(opt => { const char = opt.charAt(0); const text = opt.substring(2); area.innerHTML += `<button class="btn" onclick="check('${char}')"><strong>${char})</strong> ${text}</button>`; }); } 
+                else if(q.type === 'classic') { area.innerHTML = `<button class="btn btn-check" onclick="showClassic()">Show Answer</button>`; }
+
+                if (!isFromIntro) { contentWrapper.classList.remove('slide-out'); contentWrapper.classList.add('slide-in'); } else { contentWrapper.classList.add('slide-in'); }
+            }, delay);
+        }
+
+        function check(userAnswer) {
+            const q = questions[currentIndex];
+            const feedback = document.getElementById('feedback-area');
+            feedback.style.display = 'block';
+            quizCard.classList.remove('glow-correct', 'glow-wrong');
+            if(userAnswer && userAnswer.toUpperCase().trim() === q.a.toUpperCase()) {
+                feedback.className = 'feedback correct'; feedback.innerHTML = `Correct!`; quizCard.classList.add('glow-correct');
+            } else {
+                feedback.className = 'feedback wrong'; feedback.innerHTML = `Incorrect. <br>Answer: ${q.a}`; quizCard.classList.add('glow-wrong');
+            }
+        }
+
+        function showClassic() { const feedback = document.getElementById('feedback-area'); feedback.style.display = 'block'; feedback.className = 'feedback correct'; feedback.innerHTML = `Answer: <br>${questions[currentIndex].a}`; quizCard.classList.add('glow-correct'); }
+        function nextQ() { if(currentIndex < questions.length - 1) { currentIndex++; if (partStarts[currentIndex]) { renderQuestion(); } else { renderQuestionContent(currentIndex, false); } } }
+        function prevQ() { if(currentIndex > 0) { currentIndex--; renderQuestionContent(currentIndex, false); } }
+
+        renderQuestion();
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
+    </script>
+</body>
+</html>
